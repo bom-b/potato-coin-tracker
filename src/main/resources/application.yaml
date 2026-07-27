@@ -1,3 +1,6 @@
 spring:
   application:
     name: potato-coin-tracker
+
+server:
+  port: 9090
