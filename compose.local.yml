@@ -1,0 +1,51 @@
+# 로컬 개발용 DB. 배포 서버와 이미지 버전·포트·계정을 동일하게 맞춘다.
+#   docker compose -f compose.local.yml up -d --wait
+#   docker compose -f compose.local.yml down [-v]
+
+services:
+  mongodb:
+    image: mongo:7.0
+    container_name: potato-local-mongodb
+    restart: unless-stopped
+    ports:
+      - '27017:27017'
+    environment:
+      - TZ=Asia/Seoul
+    volumes:
+      - mongodb_data:/data/db
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.adminCommand("ping")']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: potato-local-clickhouse
+    restart: unless-stopped
+    ports:
+      - '8123:8123'
+      - '9000:9000'
+    environment:
+      - TZ=Asia/Seoul
+      # 생략하면 default 유저가 127.0.0.1 전용으로 잠긴다
+      - CLICKHOUSE_USER=potato
+      - CLICKHOUSE_PASSWORD=potato
+      - CLICKHOUSE_DB=potato_coin
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    healthcheck:
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost:8123/ping']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  mongodb_data:
+  clickhouse_data:

@@ -30,6 +30,13 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testAnnotationProcessor 'org.projectlombok:lombok'
+
+    // clickhouse 연동
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'com.clickhouse:clickhouse-jdbc:0.6.1'
+    // clickhouse-jdbc 런타임 필수 (없으면 커넥션 획득 실패)
+    implementation 'org.apache.httpcomponents.client5:httpclient5'
+    implementation 'org.lz4:lz4-java:1.8.0'
 }
 
 tasks.named('test') {

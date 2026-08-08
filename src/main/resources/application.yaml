@@ -1,6 +1,39 @@
+server:
+  port: 9090
+
 spring:
   application:
     name: potato-coin-tracker
 
-server:
-  port: 9090
+  # MongoDB — 원본(Raw) 시세 데이터
+  mongodb:
+    uri: mongodb://localhost:27017/potato_coin
+
+  data:
+    mongodb:
+      auto-index-creation: true
+
+  # ClickHouse — 시계열 집계 (JDBC는 HTTP 포트 8123 사용)
+  datasource:
+    url: jdbc:clickhouse://localhost:8123/potato_coin
+    driver-class-name: com.clickhouse.jdbc.ClickHouseDriver
+    username: potato
+    password: potato
+    hikari:
+      pool-name: clickhouse-pool
+      maximum-pool-size: 10
+
+# Prometheus가 긁어갈 Actuator 엔드포인트
+# prometheus 엔드포인트를 쓰려면 micrometer-registry-prometheus 의존성이 추가로 필요하다.
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    com.potatonetwork.potatocointracker: DEBUG
